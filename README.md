@@ -1,2 +1,2 @@
 # MultiBUGS-MSNBurr2a
-MultiBUGS program setelah penambahan distribusi MSNBurr-IIa
+Program MultiBUGS setelah penambahan distribusi MSNBurr-IIa
