@@ -30,5 +30,5 @@ list(N=11, Y = c(7.46, 6.77, 12.74, 7.11, 7.81, 8.84, 6.08, 5.39, 8.15, 6.42, 5.
 x = c(10.0, 8.0, 13.0, 9.0, 11.0, 14.0, 6.0, 4.0, 12.0, 7.0, 5.0))
 ```
 
-##Referensi
+Referensi
 Goudie, R. J. B., Turner, R. M., De Angelis, D., Thomas, A. (2020) MultiBUGS: A parallel implementation of the BUGS modelling framework for faster Bayesian inference. Journal of Statistical Software, 95(7). [doi:10.18637/jss.v095.i07](https://doi.org/10.18637/jss.v095.i07)
