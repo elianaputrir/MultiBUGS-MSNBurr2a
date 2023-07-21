@@ -2,7 +2,7 @@
 Program MultiBUGS setelah penambahan modul distribusi MSNBurr-IIa. 
 
 ## Keterangan
-Modul yang telah ditambahkan dan diubah tersimpan pada folder Source code dengan perubahan dan penambahannya terdapat pada beberapa folder berikut:
+Modul yang telah ditambahkan dan diubah tersimpan pada folder Source code MultiBUGS-master dengan perubahan dan penambahannya terdapat pada beberapa folder berikut:
 1. "MSNBurr2a.odc" dan "External.odc" pada folder Graph
 2. "Randnum.odc" dan "Cumulative.odc" pada folder Math
 3. "Make.odc" dan "Linking.odc" pada folder Developer
@@ -16,12 +16,12 @@ Contoh penggunaan sederhana yang dapat dilakukan dengan distribusi MSNBurr-IIa a
 ```{r}
 model{	
 	for (i in 1 : N) {
-		Y[i] ~ dmsnburr2a(alpha, mu[i], tau)
+		Y[i] ~ dmsnburr2a(mu[i], tau, alpha)
 		mu[i] <- beta0 + beta1 * x
 	}
 #Prior
 		beta0 ~ dnorm(0, 0.01)
-    beta1 ~ dnorm(0, 0.01)
+    		beta1 ~ dnorm(0, 0.01)
 		tau ~ dgamma(1000, 1000)
 		alpha ~ dunif(0.1, 10)
 }
