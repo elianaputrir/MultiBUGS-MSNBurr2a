@@ -1,0 +1,68 @@
+version: 2.0.{build}
+environment:
+  PATH: C:\Program Files\R\R-3.5.1\bin\x64\;$(PATH)
+install:
+- choco install r.project --version 3.5.1
+cache:
+- c:\blackbox -> .appveyor.yml
+- c:\MSMpiSetup.exe -> .appveyor.yml
+build_script:
+- cmd: >-
+    IF NOT EXIST "c:\blackbox" (
+    curl -fsS -o c:\blackbox-1.7.1.zip https://www.multibugs.org/build/blackbox-1.7.1.zip &
+    7z x c:\blackbox-1.7.1.zip -y -oc:\blackbox &
+    curl -fsS -o c:\blackbox\bbscript.exe https://www.multibugs.org/build/bbscript.exe
+    )
+
+    rem Installing MS-MPI
+
+    rem https://github.com/mpi4py/mpi4py/blob/master/conf/ci/appveyor/install-msmpi.ps1
+
+    rem this is version 10.0
+
+    IF NOT EXIST "c:\MSMpiSetup.exe" (
+    curl -fsS -o c:\MSMpiSetup.exe https://download.microsoft.com/download/A/E/0/AE002626-9D9D-448D-8197-1EA510E297CE/msmpisetup.exe
+    )
+
+    c:\MSMpiSetup.exe -unattend
+
+    set PATH=C:\Program Files\Microsoft MPI\Bin;%PATH%
+
+    rem Compile MultiBUGS.cpp
+
+    cd %APPVEYOR_BUILD_FOLDER%
+
+    call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\vcvars32.bat"
+
+    rc -fo Win/Rsrc/Bugslogo.res Win/Rsrc/Bugslogo.rc
+
+    cvtres -machine:ix86 -out:Bugslogo.obj Win/Rsrc/Bugslogo.res
+
+    cl /EHsc MultiBUGS.cpp /link shell32.lib Bugslogo.obj /subsystem:windows /entry:mainCRTStartup
+
+    rem Compiling MultiBUGS modules
+
+    c:\blackbox\bbscript.exe /USE %APPVEYOR_BUILD_FOLDER% /PAR Developer/Make.odc
+
+
+    rem Linking MultiBUGS modules
+
+    c:\blackbox\bbscript.exe /USE %APPVEYOR_BUILD_FOLDER% /PAR Developer/LinkingWindows.odc
+
+    mkdir c:\MultiBUGS\Dynamic\Sym
+
+    mkdir c:\MultiBUGS\Dynamic\Code
+
+    rem Zipping up MultiBUGS
+
+    7z a %APPVEYOR_BUILD_FOLDER%/MultiBUGS.zip c:\MultiBUGS
+
+    Rscript.exe
+    -e "install.packages(\"remotes\", repos=\"https://cloud.r-project.org\")"
+    -e "remotes::install_github(\"MultiBUGS/R2MultiBUGS\")"
+    -e "remotes::install_github(\"MultiBUGS/multibugstests\")"
+test_script:
+- cmd: >-
+    Rscript.exe -e "library(R2MultiBUGS); library(multibugstests); bugs_examples_all(n.workers = 2, n.chains = 1, report = \"appveyor\", exclude = c(\"ChangePoints\", \"Ice\", \"Lsat\", \"Pines\", \"StVeit\", \"Sixcomp\", \"Leukfr\", \"Curves\", \"Hald\"))" &
+artifacts:
+- path: MultiBUGS.zip
